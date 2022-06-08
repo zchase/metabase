@@ -41,6 +41,7 @@
 (def ^:private ^String metabase-session-cookie          "metabase.SESSION")
 (def ^:private ^String metabase-embedded-session-cookie "metabase.EMBEDDED_SESSION")
 (def ^:private ^String anti-csrf-token-header           "x-metabase-anti-csrf-token")
+(def ^:private ^String metabase-session-header          "x-metabase-session")
 
 (defn- clear-cookie [response cookie-name]
   (response/set-cookie response cookie-name nil {:expires "Thu, 1 Jan 1970 00:00:00 GMT", :path "/"}))
@@ -127,8 +128,6 @@
 ;;; +----------------------------------------------------------------------------------------------------------------+
 ;;; |                                                wrap-session-id                                                 |
 ;;; +----------------------------------------------------------------------------------------------------------------+
-
-(def ^:private ^String metabase-session-header "x-metabase-session")
 
 (defmulti ^:private wrap-session-id-with-strategy
   "Attempt to add `:metabase-session-id` to `request` based on a specific strategy. Return modified request if
