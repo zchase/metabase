@@ -23,8 +23,7 @@
             [metabase.util.schema :as su]
             [schema.core :as s]
             [throttle.core :as throttle]
-            [toucan.db :as db]
-            [toucan.models :as models])
+            [toucan.db :as db])
   (:import com.unboundid.util.LDAPSDKException
            java.util.UUID))
 

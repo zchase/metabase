@@ -25,9 +25,11 @@
             [toucan.db :as db])
   (:import java.util.UUID))
 
-;; How do authenticated API requests work? Metabase first looks for a cookie called `metabase.SESSION`. This is the
-;; normal way of doing things; this cookie gets set automatically upon login. `metabase.SESSION` is an HttpOnly
-;; cookie and thus can't be viewed by FE code.
+;; How do authenticated API requests work?
+;; Metabase first looks for a cookie called `metabase.EMBEDDED_SESSION` to
+;; Metabase first looks for a cookie called `metabase.SESSION`. This is the
+;; normal way of doing things; this cookie gets set automatically upon login.
+;; Both `metabase.EMBEDDED_SESSION` and `metabase.SESSION` is an HttpOnly cookie and thus can't be viewed by FE code.
 ;;
 ;; If that cookie is isn't present, we look for the `metabase.SESSION_ID`, which is the old session cookie set in
 ;; 0.31.x and older. Unlike `metabase.SESSION`, this cookie was set directly by the frontend and thus was not
@@ -38,10 +40,10 @@
 ;; Finally we'll check for the presence of a `X-Metabase-Session` header. If that isn't present, you don't have a
 ;; Session ID and thus are definitely not authenticated
 
-(def ^:private ^String metabase-session-cookie          "metabase.SESSION")
 (def ^:private ^String metabase-embedded-session-cookie "metabase.EMBEDDED_SESSION")
-(def ^:private ^String anti-csrf-token-header           "x-metabase-anti-csrf-token")
+(def ^:private ^String metabase-session-cookie          "metabase.SESSION")
 (def ^:private ^String metabase-session-header          "x-metabase-session")
+(def ^:private ^String anti-csrf-token-header           "x-metabase-anti-csrf-token")
 
 (defn- clear-cookie [response cookie-name]
   (response/set-cookie response cookie-name nil {:expires "Thu, 1 Jan 1970 00:00:00 GMT", :path "/"}))
