@@ -26,8 +26,7 @@
   (:import java.util.UUID))
 
 ;; How do authenticated API requests work?
-;; Metabase first looks for a cookie called `metabase.EMBEDDED_SESSION` to
-;; Metabase first looks for a cookie called `metabase.SESSION`. This is the
+;; Metabase first looks for a cookie called `metabase.EMBEDDED_SESSION`, ;; Metabase first looks for a cookie called `metabase.SESSION`. This is the
 ;; normal way of doing things; this cookie gets set automatically upon login.
 ;; Both `metabase.EMBEDDED_SESSION` and `metabase.SESSION` is an HttpOnly cookie and thus can't be viewed by FE code.
 ;;

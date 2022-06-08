@@ -127,6 +127,7 @@
                       {:credentials credentials}
                       e)))))
 
+(authenticate {:username "crowberto@metabase.com" :password "blackjet"})
 
 ;;; client
 
