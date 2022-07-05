@@ -67,6 +67,7 @@
             [clojure.tools.logging :as log]
             [honeysql.core :as hsql]
             [honeysql.format :as hformat]
+            [metabase.api.common :as api]
             [metabase.db.connection :as mdb.connection]
             [metabase.db.util :as mdb.u]
             [metabase.driver.common.parameters.dates :as params.dates]
@@ -74,6 +75,7 @@
             [metabase.models :refer [Database Dimension Field FieldValues Table]]
             [metabase.models.field :as field]
             [metabase.models.field-values :as field-values]
+            [metabase.models.interface :as mi]
             [metabase.models.params :as params]
             [metabase.models.params.chain-filter.dedupe-joins :as dedupe]
             [metabase.models.params.field-values :as params.field-values]
@@ -538,11 +540,13 @@
    (field-values/field-should-have-field-values? field-id)))
 
 (defn- cached-field-values [field-id constraints {:keys [limit]}]
-  (let [{:keys [values]} (if (empty? constraints)
-                           (params.field-values/get-or-create-field-values-for-current-user! (Field field-id))
-                           (params.field-values/get-or-create-linked-filter-field-values! (Field field-id) constraints))]
-   (cond->> (map first values)
-     limit (take limit))))
+  (when-let [field (Field field-id)]
+    (api/check-403 (params.field-values/current-user-can-fetch-field-values? field))
+    (let [{:keys [values]} (if (empty? constraints)
+                             (params.field-values/get-or-create-field-values-for-current-user! field)
+                             (params.field-values/get-or-create-linked-filter-field-values! field constraints))]
+      (cond->> (map first values)
+        limit (take limit)))))
 
 (s/defn chain-filter
   "Fetch a sequence of possible values of Field with `field-id` by restricting the possible values to rows that match
@@ -643,7 +647,7 @@
 
 (defn- cached-field-values-search
   [field-id query constraints {:keys [limit]}]
-  (let [values (cached-field-values constraints field-id nil)
+  (let [values (cached-field-values field-id constraints nil)
         query  (str/lower-case query)]
     (cond->> (filter (fn [s]
                        (when s

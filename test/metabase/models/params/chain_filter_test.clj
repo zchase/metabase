@@ -441,5 +441,5 @@
               (mt/with-temp-vals-in-db Field %myfield {:has_field_values "auto-list"}
                 (testing "Sanity check: make sure we will actually use the cached FieldValues"
                   (is (field-values/field-should-have-field-values? %myfield))
-                  (is (#'chain-filter/use-cached-field-values? %myfield {} false)))
+                  (is (#'chain-filter/use-cached-field-values? %myfield)))
                 (thunk)))))))))
