@@ -1,6 +1,7 @@
 (ns metabase-enterprise.sandbox.models.params.field-values
   (:require [metabase-enterprise.sandbox.api.table :as table]
             [metabase.api.common :as api]
+            [metabase-enterprise.sandbox.query-processor.middleware.row-level-restrictions :as row-level-restrictions]
             [metabase.models.field :as field :refer [Field]]
             [metabase.models.field-values :as field-values]
             [metabase.models.params.field-values :as params.field-values]
@@ -42,5 +43,4 @@
   [field-id]
   (when (field-is-sandboxed? (db/select-one Field :id field-id))
     (str (hash [field-id
-                api/*current-user-id*
-                @api/*current-user-permissions-set*]))))
+                (row-level-restrictions/tables->gtaps-no-store [(db/select-one-field :table_id Field :id field-id)])]))))

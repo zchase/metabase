@@ -82,6 +82,19 @@
         (assert-one-gtap-per-table gtaps)
         gtaps))))
 
+
+(defn tables->gtaps-no-store
+  "docs"
+  [table-ids]
+  (let [group-ids (db/select-field :group_id PermissionsGroupMembership :user_id *current-user-id*)
+        gtaps     (when (seq group-ids)
+                    (db/select GroupTableAccessPolicy
+                               :group_id [:in group-ids]
+                               :table_id [:in table-ids]))]
+    (when (seq gtaps)
+      (assert-one-gtap-per-table gtaps)
+      gtaps)))
+
 (defn- query->table-id->gtap [query]
   {:pre [(some? *current-user-id*)]}
   (when-let [gtaps (some->> (query->all-table-ids query)
