@@ -78,6 +78,17 @@
             (is (= post-results
                    (mt/user-http-request :crowberto :get 200 (format "mt/gtap/%s" (:id post-results))))))))
 
+      (testing "test that attribute_remappings can only have one key"
+        (with-gtap-cleanup
+          (= "value must be a valid attribute remappings map (attribute name -> remapped name) with only 1 key"
+             (get-in (mt/user-http-request :crowberto :post 400 "mt/gtap"
+                                           {:table_id             table-id
+                                            :group_id             group-id
+                                            :card_id              nil
+                                            :attribute_remappings {"foo" 1
+                                                                   "bar" 2}})
+                     [:errors :attribute_remappings]))))
+
       (testing "Meaningful errors should be returned if you create an invalid GTAP"
         (mt/with-temp* [Field [_ {:name "My field", :table_id table-id, :base_type :type/Integer}]
                         Card  [{card-id :id} {:dataset_query (mt/mbql-query venues
@@ -157,4 +168,15 @@
                    (mt/boolean-ids-and-timestamps
                     (mt/user-http-request :crowberto :put 200 (format "mt/gtap/%s" gtap-id)
                                           {:card_id              nil
-                                           :attribute_remappings {:bar 2}}))))))))))
+                                           :attribute_remappings {:bar 2}}))))))
+
+        (testing "test that attribute_remappings can only have one key"
+          (mt/with-temp GroupTableAccessPolicy [{gtap-id :id} {:table_id             table-id
+                                                               :group_id             group-id
+                                                               :card_id              card-id
+                                                               :attribute_remappings {"foo" 1}}]
+            (= "value must be a valid attribute remappings map (attribute name -> remapped name) with only 1 key"
+               (get-in (mt/user-http-request :crowberto :put 400 (format "mt/gtap/%s" gtap-id)
+                                             {:attribute_remappings {"foo" 1
+                                                                     "bar" 2}})
+                       [:errors :attribute_remappings]))))))))
